@@ -2,6 +2,8 @@
 
 面向采购和生产计划人员的本地测算工具。导入已确认需要换版的产品库存和生产排期，即可查看每款产品预计剩余多少旧包材、对应金额，以及新包材最迟应在哪天下单。
 
+[在线使用](https://joren0304.github.io/packshift-planner/) · [下载离线版](https://github.com/Joren0304/packshift-planner/releases/latest)
+
 ## 打开与使用
 
 1. 下载并解压整个项目，用最新版 Chrome、Edge、Firefox 或 Safari 打开 `dist/index.html`。页面和 Excel 处理库均随项目提供，计算可离线完成。
