@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#23392e"><title>换版台 · 食品包装换版排期</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="vendor/xlsx.mini.min.js"></script><script defer src="planner.js"></script>
+  <script defer src="workbook.js"></script><script defer src="editor.js"></script><script defer src="app.js"></script>
+</head>
+<body>
+  <header class="top"><div class="shell top-inner">
+    <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>换版台<span class="brand-en" lang="en">PackShift</span></div>
+    <button class="text-button help-trigger" type="button"><span aria-hidden="true">ⓘ</span> 使用说明</button>
+  </div></header>
+  <main class="shell">
+    <div class="title-row"><div><h1>包装换版测算</h1><p class="intro">核算旧包材余量，安排新版包装采购。</p></div><div class="actions">
+      <button id="import" class="button"><span aria-hidden="true">↑</span> 导入 Excel</button>
+      <button id="export" class="button primary"><span aria-hidden="true">↓</span> 导出测算表</button>
+    </div></div>
+    <div class="overview">
+      <section class="risk-card"><div class="risk-label"><span class="risk-mark" aria-hidden="true"></span>预计剩余包材金额</div>
+        <div class="risk-total"><span>¥</span> <strong id="risk-amount">—</strong></div>
+        <div class="risk-bottom"><span id="risk-caption">正在计算</span><div class="meter" aria-hidden="true"><i id="risk-meter"></i></div></div>
+      </section>
+      <section class="mini-card"><span>旧包材预计剩余</span><div class="mini-value"><strong id="left-total">—</strong><small>件</small></div><p id="used-caption">按现有排产计算</p></section>
+      <section class="mini-card cutoff"><label for="cutoff">换版截止日</label>
+        <input type="date" id="cutoff" min="1901-01-01" max="9999-12-31"><p>当天起的排产使用新版包材。</p></section>
+    </div>
+    <section class="products"><div class="section-head"><div class="section-title"><h2>产品排期</h2><span class="dataset" id="source">示例数据</span></div>
+      <button class="button small" id="add-product">＋ 添加产品</button></div>
+      <div class="tools"><div class="filters" role="group" aria-label="筛选产品"><button class="filter active" data-filter="all" aria-pressed="true">全部 <b id="all-count">0</b></button><button class="filter" data-filter="left" aria-pressed="false">预计有剩余 <b id="left-count">0</b></button><button class="filter" data-filter="pending" aria-pressed="false">待补排产 <b id="pending-count">0</b></button></div>
+        <label class="search"><span aria-hidden="true">⚲</span><input id="search" type="search" aria-label="按产品名称或编号搜索" placeholder="搜索名称或编号"></label></div>
+      <div class="table-wrap"><table><caption class="sr-only">产品换版测算结果</caption><thead><tr><th>产品 / 编号</th><th>旧包材消耗</th><th class="numeric">预计剩余</th><th class="numeric">剩余金额</th><th>首用新版</th><th>最迟下单</th><th><span class="sr-only">操作</span></th></tr></thead><tbody id="products"></tbody></table></div>
+      <div id="empty" hidden><strong>没有匹配的产品</strong><p>修改筛选条件，或添加产品和排产。</p></div>
+      <div class="table-end"><span id="table-count"></span><span><i class="dot green"></i> 已耗用 <i class="dot hatch"></i> 预计剩余</span></div>
+    </section>
+    <footer><span>数据保存在当前浏览器</span><button class="text-button" id="template">下载 Excel 模板 ↓</button></footer>
+    <p id="status" class="notice" role="status" aria-live="polite"></p>
+  </main>
+  <dialog id="help"><div class="dialog-head"><h2>使用说明</h2><button class="icon-button" aria-label="关闭" data-close>×</button></div>
+    <div class="dialog-body prose"><h3>准备数据</h3><p>下载 Excel 模板，在「包材库存」填写每款产品的库存、单价和印刷交期，在「生产排期」按生产日填写所需包材件数。也可以直接点「添加产品」或表格里的「编辑」。</p>
+    <h3>怎样计算</h3><p>截止日前，按排产顺序优先耗用旧包材。不够用的同一批次可以混用新旧包材。截止日当天起全部使用新版。剩余金额为预计剩余件数乘以旧包材单价。</p><p>首用新版是排期中首次需要新包材的日期。最迟下单日从该日期倒推印刷交期，按自然日计算。若尚无新版需求，会显示「待排产」。这里的预计剩余仅基于已录入的排产。</p>
+    <h3>截止日与数据保存</h3><p>默认日期取自新版预包装食品营养标签通则的实施日。请为已确认需要换版的包材设置实际截止日。实施前已生产的食品可在保质期内继续销售。<a href="https://www.nhc.gov.cn/sps/c100087/202509/470fa4ff5de14dd38619223cce9da4e7.shtml" target="_blank" rel="noopener noreferrer">国家卫健委标准问答 ↗</a></p>
+    <p>表格在本机处理。清除浏览器数据前，可导出测算表备份，并在需要时重新导入。</p></div><div class="dialog-foot"><button class="button primary" data-close>知道了</button></div></dialog>
+  <dialog id="import-dialog"><div class="dialog-head"><h2>导入 Excel</h2><button class="icon-button" aria-label="关闭" data-close>×</button></div><div class="dialog-body">
+    <p>选择含「包材库存」和「生产排期」的 .xlsx 工作簿。确认后将替换当前数据。</p>
+    <label class="file-label field">选择工作簿<input id="import-file" type="file" accept=".xlsx"></label>
+    <p id="import-preview" role="status"></p><p id="import-error" class="error" role="alert"></p></div>
+    <div class="dialog-foot"><button class="text-button" id="template-dialog">下载模板 ↓</button><button class="button" data-close>取消</button><button class="button primary" disabled id="apply-import">确认导入</button></div></dialog>
+</body></html>
